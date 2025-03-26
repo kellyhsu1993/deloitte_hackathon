@@ -34,7 +34,6 @@ This project builds a prototype knowledge graph and semantic search engine by ex
 |-------------------------|---------|
 | `ingest.py`             | Loads PDFs and exports text/metadata as LangChain `Document` objects |
 | `extract_triples.py`    | Extracts triples from `documents.json` using GPT-3.5 and saves to `triples.jsonl` |
-| `.env`                  | (ignored) Store your OpenAI API key locally as `OPENAI_API_KEY=sk-...` |
 | `documents.json`        | Extracted content + metadata per page |
 | `pdf_metadata.json`     | Summary metadata for each page |
 | `triples.jsonl`         | Triple output ready for graph import or semantic indexing |
