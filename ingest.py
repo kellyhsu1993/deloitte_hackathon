@@ -25,6 +25,9 @@ def ingest_pdfs_from_directory(root_path: str) -> List[Document]:
         raise ValueError(f"Provided root path does not exist or is not a directory: {root_path}")
 
     for institution_name in os.listdir(root_path):
+        if institution_name.startswith(".") or institution_name == "venv":
+            continue
+        
         institution_path = os.path.join(root_path, institution_name)
 
         if not os.path.isdir(institution_path):
@@ -101,6 +104,13 @@ def export_metadata_to_json(documents: List[Document], output_path: str = "pdf_m
     logger.info(f"Exported metadata to {output_path}")
 
 
+def export_documents(documents: List[Document], filename="documents.json"):
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump([
+            {"content": doc.page_content, "metadata": doc.metadata}
+            for doc in documents
+        ], f, indent=2)
+
 if __name__ == "__main__":
     import argparse
 
@@ -111,8 +121,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     docs = ingest_pdfs_from_directory(args.root)
+    export_documents(docs)
 
     if args.export:
         export_metadata_to_json(docs)
     else:
-        print("Not true")
+        logger.info("Metadata export was skipped (use --export to enable it).")
