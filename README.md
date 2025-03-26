@@ -7,7 +7,7 @@ This project builds a prototype knowledge graph and semantic search engine by ex
 
 ## Project Pipeline Overview
 
-### Phase 1: Ingest + Tag Top 100 Documents
+### Phase 1: Ingest + Tag Top 40 Documents
 - Focused on 4 core PDFs per institution (40 total):
   - Strategic Plan
   - Financial Statement
