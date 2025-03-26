@@ -51,6 +51,10 @@ def ingest_pdfs_from_directory(root_path: str) -> List[Document]:
                 doc_type = classify_document_type(filename)
 
                 for page in pages:
+                    # Remove unwanted metadata
+                    for key in ["producer", "creator", "creationdate", "moddate", "trapped"]:
+                        page.metadata.pop(key, None)
+                        
                     page.metadata.update({
                         "institution": institution_name,
                         "source_file": filename,
