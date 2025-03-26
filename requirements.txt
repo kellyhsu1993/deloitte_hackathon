@@ -1,3 +1,4 @@
+aiohttp==3.11.14
 cryptography==44.0.2  # fixes AES decryption for some PDFs
 langchain==0.3.21
 langchain-core==0.3.48
