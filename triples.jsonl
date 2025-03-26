@@ -3,8 +3,6 @@
 {"institution": "Selkirk College", "object": "supplies and services expenses totaling $15,066,193", "predicate": "incurred", "source": "Selkirk College Financial Statements 2024.pdf", "subject": "Expenses by Object"}
 {"institution": "SFU", "object": "beginning-year investment in SFUCT totaling 12,528", "predicate": "recorded", "source": "SFU Financial Statement 2024.pdf", "subject": "Investment in SFUCT"}
 {"institution": "UBC", "object": "the UBC landscape", "predicate": "will be assessed", "source": "UBC Strategic Plan.pdf", "subject": "UBC"}
-{"institution": "Camosun College", "object": "sActu al", "source": "Langara College Financial Statements 2024.pdf", "subject": "Revenue recognized from deferred capital contributions Note 9"}
-{"institution": "SFU", "object": "COGNITIVE ANALYTICS", "predicate": "WITH", "source": "SFU Courses List.pdf", "subject": "APROGACCOUNTINGupplies and services expenses in 2023 totaling $16,329,928", "predicate": "incurred", "source": "Camosun College Financial Statements 2024.pdf", "subject": "Camosun College"}
 {"institution": "RRU", "object": "Indigenous communities, settlers, and former Royal Roads military college members", "predicate": "honours", "source": "RRU Strategic Plan.pdf", "subject": "RRU"}
 {"institution": "UBC", "object": "endowments with a fair value of $19.4 million held and managed by the Vancouver Foundation", "predicate": "are included in", "source": "UBC Financial Statements 2024.pdf", "subject": "UBC’s consolidated financial statements"}
 {"institution": "Langara College", "object": "a non-cash transfer of $7,007,700 from deferred contributions", "predicate": "recognized", "source": "Langara College Financial Statements 2024.pdf", "subject": "Langara College"}
