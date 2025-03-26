@@ -1,22 +1,32 @@
-
 import os
 import json
 import logging
 from typing import List, Dict
 import spacy
-from tqdm import tqdm
 from langchain.schema import Document
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
+from langchain.text_splitter import CharacterTextSplitter
 from dotenv import load_dotenv
+from tqdm import tqdm
+from datetime import datetime
 
 # Load environment variables from .env
 load_dotenv()
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+log_filename = f"llm_extraction_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s: %(message)s",
+    handlers=[
+        logging.FileHandler(log_filename, mode="w", encoding="utf-8"),
+        logging.StreamHandler()
+    ]
+)
 logger = logging.getLogger(__name__)
+logger.info(f"LLM input/output logs will be saved to: {log_filename}")
 
 # Load spaCy model
 nlp = spacy.load("en_core_web_sm")
@@ -48,10 +58,16 @@ Triples:
 )
 triplet_chain = LLMChain(llm=llm, prompt=triplet_prompt)
 
+# Text splitter
+text_splitter = CharacterTextSplitter(
+    chunk_size=1000,
+    chunk_overlap=100
+)
+
 def extract_triples(text: str) -> List[Dict[str, str]]:
     try:
         response = triplet_chain.run(text=text).strip()
-        logger.debug("Raw LLM output: %s", response)
+        logger.info("\n=== CHUNK START ===\n%s\n--- LLM Response ---\n%s\n=== CHUNK END ===\n", text, response)
 
         parsed = json.loads(response)
 
@@ -81,32 +97,29 @@ def process_documents(input_path: str, output_path: str):
     documents = [Document(page_content=item["content"], metadata=item["metadata"]) for item in raw_data]
     all_triples = []
 
-    logger.info(f"Processing {len(documents)} document pages...")
-
-    for doc in tqdm(documents, desc="Extracting Triples", unit="page"):
+    for i, doc in enumerate(tqdm(documents, desc="Extracting Triples")):
         text = doc.page_content.strip()
         if not text or len(text) < 100:
-            logger.info(f"Skipped short/empty page from {doc.metadata.get('source_file')}")
             continue
 
-        excerpt = text[:2000]
-        triples = extract_triples(excerpt)
+        chunks = text_splitter.split_text(text)
+        logger.info(f"Processing page {i + 1}/{len(documents)} with {len(chunks)} chunks")
 
-        if triples:
-            logger.info(f"✓ Extracted {len(triples)} triples from {doc.metadata.get('source_file')} (page content starts: '{excerpt[:40]}...')")
-        else:
-            logger.info(f"✗ No triples found in {doc.metadata.get('source_file')}")
+        for chunk in chunks:
+            triples = extract_triples(chunk)
+            for triple in triples:
+                triple["institution"] = doc.metadata.get("institution", "Unknown")
+                triple["source"] = doc.metadata.get("source_file", "Unknown")
+                all_triples.append(triple)
 
-        for triple in triples:
-            triple["institution"] = doc.metadata.get("institution", "Unknown")
-            triple["source"] = doc.metadata.get("source_file", "Unknown")
-            all_triples.append(triple)
+    # Deduplicate triples
+    unique_triples = [dict(t) for t in {tuple(sorted(d.items())) for d in all_triples}]
 
     with open(output_path, "w", encoding="utf-8") as f:
-        for triple in all_triples:
+        for triple in unique_triples:
             f.write(json.dumps(triple) + "\n")
 
-    logger.info(f"Extracted {len(all_triples)} triples and saved to {output_path}")
+    logger.info(f"Extracted {len(unique_triples)} unique triples and saved to {output_path}")
 
 if __name__ == "__main__":
     import argparse
