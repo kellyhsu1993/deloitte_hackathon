@@ -1,9 +1,29 @@
+"use client";
+
 import Image from "next/image";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export default function Home() {
+  const [step, setStep] = useState(1);
+  const [files, setFiles] = useState([]);
+  const [parsedText, setParsedText] = useState("");
+  const [metadata, setMetadata] = useState({ institution: '', docType: '', year: '' });
+  const [chunks, setChunks] = useState([]);
+  const [entities, setEntities] = useState([]);
+  const [triplets, setTriplets] = useState([]);
+
+  const handleNext = () => setStep(step + 1);
+  const handleBack = () => setStep(step - 1);
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start w-full max-w-5xl">
         <Image
           className="dark:invert"
           src="/next.svg"
@@ -12,92 +32,109 @@ export default function Home() {
           height={38}
           priority
         />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+        <Progress value={(step / 7) * 100} className="w-full" />
+
+        <Tabs defaultValue={`step${step}`} className="w-full">
+          <TabsList className="grid grid-cols-7 mb-6">
+            {[...Array(7)].map((_, i) => (
+              <TabsTrigger key={i} value={`step${i + 1}`}>Step {i + 1}</TabsTrigger>
+            ))}
+          </TabsList>
+
+          <TabsContent value="step1">
+            <Card>
+              <CardContent className="space-y-4">
+                <h2 className="text-xl font-semibold">1. Upload Documents</h2>
+                <Input type="file" multiple onChange={(e) => setFiles([...e.target.files])} />
+                <Button onClick={handleNext}>Next</Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="step2">
+            <Card>
+              <CardContent className="space-y-4">
+                <h2 className="text-xl font-semibold">2. Text Parsing</h2>
+                <Textarea placeholder="Parsed text will appear here..." value={parsedText} onChange={(e) => setParsedText(e.target.value)} />
+                <div className="flex justify-between">
+                  <Button onClick={handleBack}>Back</Button>
+                  <Button onClick={handleNext}>Next</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="step3">
+            <Card>
+              <CardContent className="space-y-4">
+                <h2 className="text-xl font-semibold">3. Metadata Tagging</h2>
+                <Input placeholder="Institution" value={metadata.institution} onChange={(e) => setMetadata({ ...metadata, institution: e.target.value })} />
+                <Input placeholder="Document Type" value={metadata.docType} onChange={(e) => setMetadata({ ...metadata, docType: e.target.value })} />
+                <Input placeholder="Year" value={metadata.year} onChange={(e) => setMetadata({ ...metadata, year: e.target.value })} />
+                <div className="flex justify-between">
+                  <Button onClick={handleBack}>Back</Button>
+                  <Button onClick={handleNext}>Next</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="step4">
+            <Card>
+              <CardContent className="space-y-4">
+                <h2 className="text-xl font-semibold">4. Text Chunking</h2>
+                <Textarea placeholder="Chunks will appear here..." value={chunks.join('\n\n')} onChange={(e) => setChunks(e.target.value.split('\n\n'))} rows={8} />
+                <div className="flex justify-between">
+                  <Button onClick={handleBack}>Back</Button>
+                  <Button onClick={handleNext}>Next</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="step5">
+            <Card>
+              <CardContent className="space-y-4">
+                <h2 className="text-xl font-semibold">5. Named Entity Recognition</h2>
+                <Textarea placeholder="Entities will appear here..." value={entities.join(', ')} onChange={(e) => setEntities(e.target.value.split(','))} rows={4} />
+                <div className="flex justify-between">
+                  <Button onClick={handleBack}>Back</Button>
+                  <Button onClick={handleNext}>Next</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="step6">
+            <Card>
+              <CardContent className="space-y-4">
+                <h2 className="text-xl font-semibold">6. Triple Extraction</h2>
+                <Textarea placeholder="Enter (subject, predicate, object) triples here..." value={triplets.join('\n')} onChange={(e) => setTriplets(e.target.value.split('\n'))} rows={6} />
+                <div className="flex justify-between">
+                  <Button onClick={handleBack}>Back</Button>
+                  <Button onClick={handleNext}>Next</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="step7">
+            <Card>
+              <CardContent className="space-y-4">
+                <h2 className="text-xl font-semibold">7. Export as JSON</h2>
+                <pre className="bg-gray-100 p-4 rounded text-sm overflow-x-auto">
+                  {JSON.stringify({ chunks, metadata, entities, triplets }, null, 2)}
+                </pre>
+                <div className="flex justify-between">
+                  <Button onClick={handleBack}>Back</Button>
+                  <Button onClick={() => alert('Export complete!')}>Export</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
