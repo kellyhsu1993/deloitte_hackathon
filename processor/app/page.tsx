@@ -11,7 +11,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export default function Home() {
   const [step, setStep] = useState(1);
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState<File[]>([]);
   const [parsedText, setParsedText] = useState("");
   const [metadata, setMetadata] = useState({ institution: '', docType: '', year: '' });
   const [chunks, setChunks] = useState([]);
@@ -20,6 +20,10 @@ export default function Home() {
 
   const handleNext = () => setStep(step + 1);
   const handleBack = () => setStep(step - 1);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files) return;
+    setFiles(Array.from(event.target.files));
+  };
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -46,7 +50,7 @@ export default function Home() {
             <Card>
               <CardContent className="space-y-4">
                 <h2 className="text-xl font-semibold">1. Upload Documents</h2>
-                <Input type="file" multiple onChange={(e) => setFiles([...e.target.files])} />
+                <Input type="file" multiple onChange={handleFileChange} />
                 <Button onClick={handleNext}>Next</Button>
               </CardContent>
             </Card>
