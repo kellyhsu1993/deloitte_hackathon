@@ -26,8 +26,8 @@ export default function Home() {
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start w-full max-w-5xl">
         <Image
           className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
+          src="/Deloitte.png"
+          alt="Deloitte logo"
           width={180}
           height={38}
           priority
