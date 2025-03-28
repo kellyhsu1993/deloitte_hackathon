@@ -37,7 +37,9 @@ def format_context(matches):
     for m in matches:
         meta = m['metadata']
         triple = f"{meta['subject']} {meta['predicate']} {meta['object']}"
-        context += f"- {triple} (from {meta.get('institution', 'Unknown')})\n"
+        source = meta.get('source', 'Unknown source')
+        institution = meta.get('institution', 'Unknown institution')
+        context += f"- {triple}\n  ↳ Source: {source}, Institution: {institution}\n"
     return context
 
 def ask_openai(question: str, context: str) -> str:
@@ -93,6 +95,16 @@ def main():
 
         print("\n Answer:")
         print(answer + "\n")
+        print("\n Sources Used:")
+        seen = set()
+        for m in matches:
+            source = m['metadata'].get('source', 'Unknown')
+            institution = m['metadata'].get('institution', 'Unknown')
+            key = (source, institution)
+            if key not in seen:
+                print(f"- {source} ({institution})")
+                seen.add(key)
+
 
 if __name__ == "__main__":
     main()
