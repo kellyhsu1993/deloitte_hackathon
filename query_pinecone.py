@@ -41,28 +41,30 @@ def format_context(matches):
     return context
 
 def ask_openai(question: str, context: str) -> str:
+    model="gpt-3.5-turbo",
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are a Deloitte Vancouver consultant preparing high-level strategic insights for a Partner. "
+                "Your task is to synthesize and answer questions using structured semantic triples extracted from academic and institutional documents. "
+                "Frame your responses to support decision-making, highlighting comparisons, trends, and actionable findings that are relevant to client needs."
+                "Only compare institutions that are explicitly asked about. "
+                "Ignore any unrelated institutions even if they appear in the information."
+            )
+        },
+        {
+            "role": "user",
+            "content": (
+                f"Based on the following information:\n\n{context}\n\n"
+                f"Answer this question:\n{question}"
+            )
+        }
+    ]
+    
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
-        messages = [
-            {
-                "role": "system",
-                "content": (
-                    "You are a Deloitte Vancouver consultant preparing high-level strategic insights for a Partner. "
-                    "Your task is to synthesize and answer questions using structured semantic triples extracted from academic and institutional documents. "
-                    "Frame your responses to support decision-making, highlighting comparisons, trends, and actionable findings that are relevant to client needs."
-                    "Only compare institutions that are explicitly asked about. "
-                    "Ignore any unrelated institutions even if they appear in the information."
-                )
-            },
-            {
-                "role": "user",
-                "content": (
-                    f"Based on the following information:\n\n{context}\n\n"
-                    f"Answer this question:\n{question}"
-                )
-            }
-        ]
-
+        messages=messages,
         temperature=0.2
     )
     return response.choices[0].message.content.strip()
