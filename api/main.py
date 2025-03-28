@@ -17,4 +17,5 @@ app.add_middleware(
 async def query_backend(request: Request):
     data = await request.json()
     user_query = data.get("question", "")
-    return handle_query(user_query)
+    history = data.get("history", [])
+    return handle_query(user_query, history)

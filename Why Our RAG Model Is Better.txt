@@ -12,18 +12,20 @@ By building a custom RAG pipeline, we get full control over how data flows:
 
     Most importantly, we can scale to thousands of documents and handle complex logic across multiple data types.
 
+An advantage is we have more control over the source documents unlike online LLMs.
+What former two Deloitte projects most align with UBC's latest RFP?
+What two projects has Deloitte completed that most align with TRU's strategic plan?
+
 Conclusion
 
 OpenAI’s tools are powerful but limited in scope. For a robust Deloitte MVP — where credibility, traceability, and scale matter — we need a RAG pipeline. It gives us the building blocks to structure, store, and query institutional knowledge intelligently and responsibly.
 
 Let’s keep control of the process, and build something that actually grows with our needs.
 
-# Assistants API
 You can't choose your own embedding model or vector DB.
 Not suitable for complex workflows or strict data governance.
 Limited transparency over how files are chunked or embedded.
 
-# ChatGPT Pro (via GPT-4 Turbo with Files)
 Not scalable for large document sets.
 No vector search or fine-tuning logic.
 No persistent retrieval or memory beyond the session.

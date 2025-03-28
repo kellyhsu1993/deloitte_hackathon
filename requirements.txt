@@ -12,3 +12,6 @@ pandas==2.2.3
 pypdf==5.4.0
 PyMuPDF==1.25.4
 spacy==3.8.4
+react
+react-dom
+streamlit
