@@ -34,7 +34,7 @@ def format_context(matches):
         triple = f"{meta['subject']} {meta['predicate']} {meta['object']}"
         source = meta.get('source', 'Unknown source')
         institution = meta.get('institution', 'Unknown institution')
-        context += f"- {triple}\n  ↳ Source: {source}, Institution: {institution}\n"
+        context += f"- {triple}\n  Source: {source}, Institution: {institution}\n"
     return context
 
 def ask_openai(question: str, context: str) -> str:
@@ -63,33 +63,35 @@ def ask_openai(question: str, context: str) -> str:
     )
     return response.choices[0].message.content.strip()
 
-def handle_query(user_query: str) -> dict:
+def handle_query(user_query: str, history: list = None):
     query_embedding = get_query_embedding(user_query)
     matches = search_pinecone(query_embedding)
 
-    if not matches:
-        return {
-            "answer": "No relevant information found.",
-            "sources": []
-        }
-
     context = format_context(matches)
-    answer = ask_openai(user_query, context)
-    seen = set()
-    sources = []
 
-    for m in matches:
-        source = m['metadata'].get('source', 'Unknown')
-        institution = m['metadata'].get('institution', 'Unknown')
-        key = (source, institution)
-        if key not in seen:
-            sources.append(f"{source} ({institution})")
-            seen.add(key)
+    messages = history if history else []
+    messages.append({
+        "role": "user",
+        "content": f"Based on the following information:\n\n{context}\n\nAnswer this question:\n{user_query}"
+    })
+
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a Deloitte consultant answering questions using trusted institutional documents. Reference only relevant, filtered sources."
+            },
+            *messages
+        ],
+        temperature=0.2
+    )
 
     return {
-        "answer": answer,
-        "sources": sources
+        "answer": response.choices[0].message.content.strip(),
+        "sources": list({m["metadata"].get("source", "Unknown") + " (" + m["metadata"].get("institution", "") + ")" for m in matches})
     }
+
 
 def main():
     print("Ask your question about any of the ten post-secondary institutions (type 'exit' to quit):\n")
@@ -99,12 +101,12 @@ def main():
             print(" Exiting. Thank you!")
             break
 
-        print("→ Processing...")
+        print("Processing...")
         result = handle_query(user_query)
         print("\n Answer:")
         print(result["answer"] + "\n")
 
-        print(" Sources Used:")
+        print("Sources Used:")
         for src in result["sources"]:
             print(f"- {src}")
 
